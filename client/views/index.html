@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tweet</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <h2>Timeline</h2>
+    <form action="twitter/search">
+      <label for="search">search</label>
+      <input type="text" name="search" value="">
+      <button type="button" onclick="searchTweet()">Search</button>
+    </form>
+    <div id="search"></div><br>
+    <div id="timeline"></div><br>
+    <button type="button" name="button-timeline" onclick="getTimeline()">Click here</button>
+    <form action="/twitter/post" id="tweet-form">
+      <label for="tweeting">Tweet here</label><br>
+      <textarea name="tweeting" rows="8" cols="80"></textarea><br>
+      <button type="button" onclick="tweet()">Tweet</button>
+    </form>
+  </body>
+
+  <script type="text/javascript">
+
+  function tweet() {
+    let value = $("#tweet-form").serialize().split('=')
+    $.ajax({
+      method:'POST',
+      url:'http://localhost:3000/twitter/post',
+      data: {data: value[1]},
+      success: (data) => {
+        console.log(data);
+        getTimeline().prepend('<li>'+data+'</li>')
+      },
+      fail: () => {
+        console.log("error");
+      }
+    })
+  }
+
+    function getTimeline() {
+      $(document).ready(() => {
+        $.ajax({
+          method:'GET',
+          url:'http://localhost:3000/twitter/timeline',
+          success: (data) => {
+            console.log("Success", data);
+            data.forEach((tweet) => {
+              $("#timeline").append('<li>'+tweet+'</li>')
+            })
+          },
+          fail: () => {
+            console.log('Error');
+          }
+        })
+      })
+    }
+
+    function searchTweet() {
+      let value = $('#search').serialize().split('=')
+      $.ajax({
+        method: 'POST',
+        url: 'http://localhost:3000/twitter/search',
+        data: {data: value[1]}
+        success: (data) => {
+          console.log(data);
+          data.forEach((search) => {
+            $("#search").append('<li>'+search+'</li>')
+          })
+        },
+        fail: () => {
+          console.log('Error');
+        }
+      })
+    }
+  </script>
+</html>
